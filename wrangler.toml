@@ -1,0 +1,12 @@
+name = "my-app"
+type = "javascript"
+
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
+
+[[kv_namespaces]]
+binding = "PORTT"
+preview_id = "5f273e15e23c4185920763f251489cc1"
+id = "5a8d4a96b69a47d5ada21befdef29533"
