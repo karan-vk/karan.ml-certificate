@@ -14,10 +14,11 @@ const getCache = () => PORTT.get("cert")
 
 
 async function handleRequest(request) {
+  console.log(JSON.stringify(request))
 
   const cache = await getCache()
 
-  if (!cache) {
+  if (true) {
     let resp = await fetch('https://berowra.karanvk.deta.app/api/collection/1tattom4nomb')
     let data = await resp.json()
     let keys = []
@@ -48,7 +49,7 @@ async function handleRequest(request) {
     })
 
     await setCache(results)
-    return new Response(JSON.stringify({ results }), {
+    return new Response(JSON.stringify(results), {
       headers: { 'content-type': 'application/json' },
     })
   } else {
