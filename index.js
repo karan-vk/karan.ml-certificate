@@ -6,24 +6,28 @@ addEventListener('fetch', event => {
  * @param {Request} request
  */
 
-const setCache = async (data) => {
-  await PORTT.put("cert", JSON.stringify(data), { expirationTtl: 60 * 30 })
+const setCache = async (data, limit) => {
+  await PORTT.put("cert" + limit, data, { expirationTtl: 60 * 30 })
 }
 
-const getCache = () => PORTT.get("cert")
+const getCache = (limit) => PORTT.get("cert" + limit)
 
 
 async function handleRequest(request) {
-  console.log(JSON.stringify(request))
+  const { searchParams } = new URL(request.url)
+  let limit = searchParams.get('limit')
+  const cache = await getCache(limit)
 
-  const cache = await getCache()
-
-  if (true) {
+  if (!cache) {
     let resp = await fetch('https://berowra.karanvk.deta.app/api/collection/1tattom4nomb')
     let data = await resp.json()
     let keys = []
-    data.items.forEach((element) => {
+    data.items.every((element, index) => {
+      if (index == limit) {
+        return false
+      }
       keys.push(`https://berowra.karanvk.deta.app/api/content/${element.key}`)
+      return true
     });
     const pages = await Promise.all(keys.map(async url => {
       const resp = await fetch(url);
@@ -42,14 +46,14 @@ async function handleRequest(request) {
       if (transformed["Certificate"] != null) {
         transformed["Certificate"] = transformed["Certificate"].map(e => "https://berowra.karanvk.deta.app/file/" + e)
       }
-      if (transformed["Image"] != null) {
-        transformed["Image"] = transformed["Image"].map(e => "https://berowra.karanvk.deta.app/file/" + e)
-      }
+      // if (transformed["Image"] != null) {
+      //   transformed["Image"] = transformed["Image"].map(e => "https://berowra.karanvk.deta.app/file/" + e)
+      // }
       results.push(transformed)
     })
-
-    await setCache(results)
-    return new Response(JSON.stringify(results), {
+    let body = JSON.stringify(results)
+    await setCache(body, limit)
+    return new Response(body, {
       headers: { 'content-type': 'application/json' },
     })
   } else {
